@@ -1,0 +1,23 @@
+# Python virtual environments
+pytorch_env/
+pytorch312_env/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Jupyter temporary files
+.ipynb_checkpoints/
+
+# Python environment files
+.env
+.venv/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Unused raw datasets
+data/raw/eth.csv
+data/raw/export-TxGrowth.csv
