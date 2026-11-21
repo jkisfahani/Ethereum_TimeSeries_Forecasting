@@ -4,73 +4,52 @@
 
 ## Project Overview
 
-This project investigates the temporal characteristics and forecasting of daily transaction activity on the Ethereum blockchain.
-
-It applies exploratory data analysis (EDA), statistical time-series methods, machine-learning algorithms, and deep-learning techniques to historical Ethereum transaction data.
-
-The primary objective is to evaluate and compare different forecasting approaches and identify models capable of capturing temporal dependencies, recurring patterns, and changes in Ethereum network activity.
+This project investigates the temporal characteristics and forecasting of daily transaction activity on the Ethereum blockchain. It applies exploratory data analysis, statistical time-series methods, machine-learning algorithms, and deep-learning techniques to historical Ethereum transaction data.
 
 ## Dataset
 
-- **Source:** Google BigQuery Public Dataset
-- **Table:** `bigquery-public-data.goog_blockchain_ethereum_mainnet.transactions`
+- **Source:** Google BigQuery Public Dataset (Google Cloud Blockchain Analytics)
+- **Table:** `bigquery-public-data.goog_blockchain_ethereum_mainnet_us.transactions`
 - **Observation period:** 1 October 2015 – 17 November 2026
 - **Total observations:** 4,066 daily records
 - **Target variable:** Daily transaction count
+- **Date convention in the documented SQL:** UTC calendar days
 
-The dataset was processed into a daily time series with continuous date coverage and no missing dates.
+The processed daily series has continuous calendar coverage. See [the SQL documentation](sql/README.md) and [the extraction query](sql/daily_transaction_counts.sql) for the documented aggregation logic and provenance notes.
 
 ## Methodology
 
 The project follows a chronological time-series forecasting workflow.
 
-### 1. Exploratory Data Analysis
+### Exploratory data analysis
 
-- Transaction-count distributions
-- Long-term network activity trends
+- Transaction-count distributions and long-term trends
 - Rolling averages and volatility
 - Weekly and monthly patterns
-- Monthly activity heatmaps
 - Stationarity and autocorrelation analysis
 
-### 2. Statistical Forecasting
+### Forecasting models
 
-- Naive forecasting
-- Seasonal naive forecasting
-- ARIMA
-- SARIMA
+- Benchmarks: naïve and seasonal naïve
+- Statistical: ARIMA and SARIMA
+- Machine learning: Random Forest, XGBoost, and multilayer perceptron (MLP)
+- Deep learning: long short-term memory (LSTM)
 
-### 3. Machine Learning
+### Model evaluation
 
-- Random Forest
-- XGBoost
-- Multilayer Perceptron (MLP)
+The dataset was divided chronologically:
 
-### 4. Deep Learning
+- **Training:** 2,846 observations (70%; 1 Oct 2015 – 16 Jul 2023)
+- **Validation:** 610 observations (15%; 17 Jul 2023 – 17 Mar 2025)
+- **Testing:** 610 observations (15%; 18 Mar 2025 – 17 Nov 2026)
 
-- Long Short-Term Memory (LSTM)
+For the final machine-learning and deep-learning test evaluation, models were retrained using the combined training and validation history. A rolling-origin, one-day-ahead forecasting strategy was then applied. After each prediction, the actual observation was incorporated into the history for the next forecast, while model parameters remained fixed.
 
-### 5. Model Evaluation
+Performance was evaluated using MAE, RMSE, and MAPE. Fixed-origin statistical forecasts and rolling-origin forecasts represent different evaluation strategies and should not be directly ranked against each other.
 
-The dataset was divided chronologically into three subsets:
+## Final test results
 
-- **Training:** 70% (2,846 observations)
-- **Validation:** 15% (610 observations)
-- **Testing:** 15% (610 observations)
-
-For the final machine-learning and deep-learning test evaluation, models were retrained using the combined training and validation data.
-
-A rolling-origin, one-day-ahead forecasting strategy was then applied. After each prediction, the actual observation was incorporated into the historical input for the next forecast, while model parameters remained fixed.
-
-Performance was evaluated using:
-
-- Mean Absolute Error (MAE)
-- Root Mean Squared Error (RMSE)
-- Mean Absolute Percentage Error (MAPE)
-
-## Final Test Results
-
-The following table presents the test-set performance of the four machine-learning and deep-learning models.
+The following table presents the final 610-observation test-set performance of the four machine-learning and deep-learning models.
 
 | Model | MAE | RMSE | MAPE (%) |
 |---|---:|---:|---:|
@@ -79,78 +58,57 @@ The following table presents the test-set performance of the four machine-learni
 | Random Forest | 341,539.07 | 491,271.85 | 15.86 |
 | XGBoost | 391,641.66 | 546,286.97 | 18.23 |
 
-**Best-performing model: LSTM**
+Among these four models in this final test experiment, LSTM achieved the lowest error on all three reported measures. Statistical models were not evaluated in this same final test experiment, so this table does not establish a winner across every model family considered.
 
-LSTM achieved the lowest error across all three evaluation metrics.
-
-The annual analysis also showed that all four models experienced increased prediction errors during 2026 compared with 2025. This highlights the challenges associated with changing Ethereum network activity and the limitations of models with fixed parameters.
-
-**Evaluation note:** Fixed-origin statistical forecasts and rolling-origin machine-learning/deep-learning forecasts represent different evaluation strategies and should not be directly ranked against each other.
-
-## Project Structure
+## Project structure
 
 ```text
 Ethereum_TimeSeries_Forecasting/
-│
 ├── data/
 │   ├── raw/
 │   └── processed/
-│
 ├── notebooks/
 │   └── 01_Ethereum_TimeSeries_Forecasting.ipynb
-│
+├── sql/
+│   ├── daily_transaction_counts.sql
+│   └── README.md
 ├── visualizations/
-│   ├── 01_transaction_count_distribution.png
-│   ├── ...
-│   └── 33_annual_test_performance_comparison.png
-│
+│   └── [numbered analysis figures]
 ├── lstm_benchmark.py
-├── .gitignore
 └── README.md
 ```
 
-*Note: Local Python virtual environments (`pytorch_env` and `pytorch312_env`) are excluded from the published project repository.*
-
-## Technologies Used
-
-- **Programming language:** Python
-- **Development environment:** Jupyter Notebook
-- **Data analysis:** pandas, NumPy
-- **Data visualization:** Matplotlib
-- **Statistical analysis:** statsmodels, SciPy
-- **Machine learning:** scikit-learn, XGBoost
-- **Deep learning:** PyTorch
-- **Data source:** Google BigQuery
+Local Python virtual environments are excluded from the published repository.
 
 ## Reproducibility
 
-The primary analytical workflow is provided in:
+The main analysis is in `notebooks/01_Ethereum_TimeSeries_Forecasting.ipynb`.
 
-`notebooks/01_Ethereum_TimeSeries_Forecasting.ipynb`
+### Data extraction
 
-The processed dataset and visualization files are organized in their respective project directories.
+1. Read [sql/README.md](sql/README.md) before running the query.
+2. Run [sql/daily_transaction_counts.sql](sql/daily_transaction_counts.sql) in BigQuery Standard SQL.
+3. Export the result to CSV and preserve the unmodified export.
+4. Verify that it contains 4,066 daily rows from 2015-10-01 through 2026-11-17.
+5. Record the extraction date, query commit, output filename, and (ideally) a SHA-256 checksum for the exported CSV.
 
-To reproduce the analysis:
+**Query provenance:** The SQL file currently in the repository is a documented reconstruction of the daily aggregation. It is not claimed to be the exact original query that generated the historical processed CSV, because the original query text was not available in the project history. For exact replication of the original dataset, the original SQL and original export must be archived and checked against one another.
 
-1. Configure a compatible Python environment.
-2. Install the required packages.
-3. Make the dataset available in the expected project location.
-4. Open the Jupyter Notebook.
-5. Execute the notebook cells in their intended order.
+### Analysis
 
-## Limitations and Future Research
+1. Configure a compatible Python environment and install the required packages.
+2. Place the verified processed dataset at the location expected by the notebook, or update the notebook's data path.
+3. Open the notebook and execute its cells in order.
+4. Retain the notebook, figures, environment/package versions, and model configuration with the project revision.
 
-Potential extensions include:
+## Technologies
 
-- Incorporating active addresses, gas usage, transaction fees, and smart-contract activity.
-- Investigating the effects of major Ethereum network upgrades.
-- Exploring hybrid statistical and deep-learning models.
-- Evaluating periodic model retraining and adaptive forecasting.
-- Applying explainable machine-learning methods.
-- Extending the analysis to other blockchain networks.
+Python, Jupyter Notebook, pandas, NumPy, Matplotlib, statsmodels, SciPy, scikit-learn, XGBoost, PyTorch, and Google BigQuery.
+
+## Limitations and future research
+
+Potential extensions include adding active addresses, gas usage, transaction fees, and smart-contract activity; investigating possible effects of network upgrades; testing hybrid models; evaluating periodic model retraining; and applying explainable machine-learning methods.
 
 ## Conclusion
 
-This project provides a comparative framework for analysing and forecasting daily Ethereum transaction activity using statistical, machine-learning, and deep-learning approaches.
-
-Among the evaluated machine-learning and deep-learning models, LSTM achieved the strongest final test-set performance. However, the increased prediction errors observed during 2026 demonstrate the importance of accounting for evolving blockchain network behaviour and considering adaptive forecasting strategies in future research.
+This project provides a comparative framework for analysing and forecasting daily Ethereum transaction activity. LSTM achieved the strongest final test performance among the four machine-learning and deep-learning models evaluated in that test experiment. The increase in errors during the 2026 test segment highlights the importance of evaluating models across changing periods and considering adaptive forecasting strategies.
