@@ -112,3 +112,15 @@ Potential extensions include adding active addresses, gas usage, transaction fee
 ## Conclusion
 
 This project provides a comparative framework for analysing and forecasting daily Ethereum transaction activity. LSTM achieved the strongest final test performance among the four machine-learning and deep-learning models evaluated in that test experiment. The increase in errors during the 2026 test segment highlights the importance of evaluating models across changing periods and considering adaptive forecasting strategies.
+
+## Research Reports
+
+The full research report presents the methodology, exploratory data analysis, forecasting models, validation strategy, results, and conclusions of this Ethereum network activity forecasting project.
+
+### Available Formats
+
+- [PDF Report](reports/Ethereum_Network_Activity_Forecasting_Report.pdf)
+- [Word Report](reports/Ethereum_Network_Activity_Forecasting_Report.docx)
+- [Markdown Report](reports/Ethereum_Network_Activity_Forecasting_Report.md)
+
+The Markdown report includes all 33 figures, stored in `reports/Ethereum_Forecasting_Markdown_Assets/`.
