@@ -124,3 +124,5 @@ The full research report presents the methodology, exploratory data analysis, fo
 - [Markdown Report](reports/Ethereum_Network_Activity_Forecasting_Report.md)
 
 The Markdown report includes all 33 figures, stored in `reports/Ethereum_Forecasting_Markdown_Assets/`.
+
+**[Read the Research Report](reports/Ethereum_Network_Activity_Forecasting_Report.docx)**
